@@ -1,11 +1,11 @@
 module Queuer
+
   def enqueue
-    puts "in enque"
-    if try_count_field == 0
-      puts "ensuingggg"
-      Resque.enqueue(RequestReceived, self.id)
-    else
+    puts "Will enqueue #{self.id} in #{retry_phase}"
+    if retry_phase
       Resque.enqueue_in(retry_phase, RequestReceived, self.id)
+    else
+      puts "Too many retries"
     end
   rescue Exception => e
     Rails.logger.debug e.message

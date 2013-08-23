@@ -6,24 +6,17 @@ class Producer
   end
 
   def self.publish(klass, id, msg)
-    puts "tying to publish"
     conn = Bunny.new
     conn.start
-    ch = conn.create_channel
 
-    queueue = "#{klass}_#{msg}"
-    puts "qu #{queueue}"
+    ch       = conn.create_channel
+    x        = ch.topic("topic_logs")
+    severity = "#{klass}.process"
+    msg      = "#{id}"
 
-    q = ch.queue(queueue)
-    puts "q #{q.inspect}"
-
-
-    puts "def #{ch.default_exchange.inspect}"
-    ch.default_exchange.publish(id.to_s, :routing_key => q.name)
-    puts "published"
+    x.publish(msg, :routing_key => severity)
+    puts " [x] Sent #{severity}:#{msg}"
 
     conn.close
   end
-
 end
-
